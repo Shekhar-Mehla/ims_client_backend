@@ -7,7 +7,7 @@ const registerDataValidator = (req, res, next) => {
     fName: STRING.required(),
     lName: STRING.required(),
     email: EMAIL.required(),
-    password: STRING.min(6).required(),
+    password: STRING.min(8).required(),
     technologies: Joi.array().items(STRING).default([]),
     sectors: Joi.array().items(STRING).default([]),
     roles: Joi.array().items(STRING).default([]),
@@ -18,6 +18,7 @@ const registerDataValidator = (req, res, next) => {
 
 export default registerDataValidator;
 export const loginDataValidator = (req, res, next) => {
+  console.log(req.body, "21");
   const schemaObject = Joi.object({
     email: EMAIL.required(),
     password: STRING.min(8).required(),
@@ -37,6 +38,14 @@ export const forgetPasswordDataValidator = (req, res, next) => {
 export const generateNewOtpDataValidator = (req, res, next) => {
   const schemaObject = Joi.object({
     email: EMAIL.required(),
+  }).options({ abortEarly: false });
+  return dataValidator(req, res, next, schemaObject);
+};
+
+export const changePasswordDataValidator = (req, res, next) => {
+  const schemaObject = Joi.object({
+    currentPassword: STRING.min(8).required(),
+    newPassword: STRING.min(8).required(),
   }).options({ abortEarly: false });
   return dataValidator(req, res, next, schemaObject);
 };

@@ -1,16 +1,20 @@
 import express from "express";
 import registerDataValidator, {
+  changePasswordDataValidator,
   forgetPasswordDataValidator,
   generateNewOtpDataValidator,
   loginDataValidator,
 } from "../joiValidators/registerDataValidator.js";
 
 import {
+  changePasswordController,
   forgetPasswordController,
   generateNewOtpController,
+  getProfileController,
   loginController,
   logoutController,
   registerController,
+  verifyEmailController,
 } from "../controllers/authController.js";
 import {
   renewAccessTokenMiddleware,
@@ -19,8 +23,15 @@ import {
 const authRoutes = express.Router();
 
 authRoutes.post("/register", registerDataValidator, registerController);
+authRoutes.get("/verify-email", verifyEmailController);
 authRoutes.post("/login", loginDataValidator, loginController);
 authRoutes.post("/logout", userAuthMiddleware, logoutController);
+authRoutes.post(
+  "/change-password",
+  userAuthMiddleware,
+  changePasswordDataValidator,
+  changePasswordController
+);
 authRoutes.post(
   "/generate-new-otp",
   generateNewOtpDataValidator,
@@ -32,4 +43,5 @@ authRoutes.post(
   forgetPasswordController
 );
 authRoutes.post("/renwew-access-token", renewAccessTokenMiddleware);
+authRoutes.get("/profile", userAuthMiddleware, getProfileController);
 export default authRoutes;

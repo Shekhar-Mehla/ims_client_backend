@@ -14,6 +14,7 @@ export const comparePassword = async (password, hash) => {
     const match = await bcrypt.compare(password, hash);
     return match;
   } catch (error) {
-    next(error);
+    console.error("Error in password comparison:", error);
+    throw error;
   }
 };

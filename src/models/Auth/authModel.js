@@ -17,3 +17,6 @@ export const updatePasswordByEmail = async (email, newPassword) =>
     { password: newPassword },
     { new: true }
   );
+
+export const updateUserVerification = async (authId, verified) =>
+  await authCollection.findByIdAndUpdate(authId, { verified }, { new: true });
