@@ -1,77 +1,101 @@
 import mongoose from "mongoose";
-
-const internshipSchema = new mongoose.Schema(
+const InternshipSchema = new mongoose.Schema(
   {
     title: {
       type: String,
       required: true,
       trim: true,
+      maxlength: 200,
     },
     description: {
       type: String,
       required: true,
+      maxlength: 5000,
     },
     company: {
       type: String,
       required: true,
       trim: true,
+      maxlength: 100,
     },
     location: {
       type: String,
       required: true,
       trim: true,
+      maxlength: 200,
     },
+
+    // ✅ Used in internship list
     technologies: [
       {
         type: String,
         trim: true,
+        maxlength: 50,
       },
     ],
-    sectors: [
-      {
-        type: String,
-        trim: true,
-      },
-    ],
-    roles: [
-      {
-        type: String,
-        trim: true,
-      },
-    ],
-    postedBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Auth",
-      required: true,
+    applicationCount: {
+      type: Number,
+      default: 0,
+      min: 0,
     },
     postedByName: {
       type: String,
       required: true,
+      trim: true,
+      maxlength: 100,
     },
-    slug: {
+
+    // ✅ To make sidebar dynamic (replace hard-coded values)
+    stipend: {
       type: String,
+      trim: true,
+      maxlength: 100,
+      default: null,
+    },
+    duration: {
+      type: String,
+      trim: true,
+      maxlength: 50,
+      default: null,
+    },
+    rating: {
+      type: Number,
+      min: 0,
+      max: 5,
+      default: null,
+    },
+    reviewCount: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    applicationDeadline: {
+      type: Date,
+      default: null,
+    },
+
+    postedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Auth",
       required: true,
-      unique: true,
     },
     status: {
       type: String,
       enum: ["active", "inactive", "expired"],
       default: "active",
     },
-    applicationCount: {
-      type: Number,
-      default: 0,
+    slug: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
+      lowercase: true,
+      index: true,
     },
   },
   {
     timestamps: true,
   }
 );
-
-// Create indexes for better performance
-internshipSchema.index({ slug: 1 });
-internshipSchema.index({ postedBy: 1 });
-internshipSchema.index({ status: 1 });
-
-const internshipCollection = mongoose.model("Internship", internshipSchema);
+const internshipCollection = mongoose.model("Internship", InternshipSchema);
 export default internshipCollection;
