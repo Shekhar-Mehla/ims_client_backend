@@ -3,31 +3,74 @@ import {
   getAllApplicationsModel,
   updateApplicationStatusModel,
 } from "../models/Application/applicationModel.js";
-import { createNotification } from "../models/Notification/notificationModel.js";
+import uploadToCloudinary from "../utility/cloudinaryUploader.js";
+import deleteFile from "../utility/deleteFile.js";
+// import { createNotification } from "../models/Notification/notificationModel.js";
 import responseClient from "../utility/responseClient.js";
 
 export const applyController = async (req, res, next) => {
   try {
-    const { internshipId, profileId, resumeUrl, publicResumeId } = req.body;
-    const applicationData = {
-      internshipId,
-      profileId,
-      resumeUrl,
-      publicResumeId,
-    };
-    const application = await applyApplicationModel(applicationData);
-    if (!application) {
-      return responseClient({
-        res,
-        statusCode: 400,
-        message: "Failed to apply for the internship",
-      });
+    const documents = {};
+
+    // Upload files to Cloudinary and collect URLs
+    if (req.files) {
+      const uploadPromises = [];
+
+      if (req.files.resume && req.files.resume[0]) {
+        uploadPromises.push(
+          uploadToCloudinary(req.files.resume[0].path).then((result) => {
+            documents.resumeUrl = result.url;
+            documents.resumePublicId = result.public_id;
+          })
+        );
+      }
+
+      if (req.files.portfolio && req.files.portfolio[0]) {
+        uploadPromises.push(
+          uploadToCloudinary(req.files.portfolio[0].path).then((result) => {
+            documents.portfolioUrl = result.url;
+            documents.portfolioPublicId = result.public_id;
+          })
+        );
+      }
+
+      // Wait for all uploads to complete
+      await Promise.all(uploadPromises);
     }
+
+    // Prepare application data
+    const applicationData = {
+      internshipId: req.body.internshipId,
+      userId: req.body.userId,
+      profileId: req.body.profileId,
+      preferences: {
+        startDate: new Date(req.body.startDate),
+        duration: req.body.duration,
+        expectedStipend: req.body.expectedStipend,
+        workMode: req.body.workMode,
+        whyThisInternship: req.body.whyThisInternship,
+        coverLetter: req.body.coverLetter,
+      },
+      documents,
+      agreeTerms: req.body.agreeTerms === "true",
+      source: req.body.source || "direct",
+    };
+
+    // Save application to database
+    const application = await applyApplicationModel(applicationData);
+
     return responseClient({
       res,
-      message: "Successfully applied for the internship",
+      message: "Application submitted successfully",
+      payload: {
+        applicationId: application._id,
+        status: application.status,
+        submittedAt: application.submittedAt,
+        documents: application.documents,
+      },
     });
   } catch (error) {
+    console.log(error);
     next(error);
   }
 };

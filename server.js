@@ -4,6 +4,9 @@ import cors from "cors";
 import errorMiddleWare from "./src/middlewares/errorMiddleWare.js";
 import authRoutes from "./src/routes/authRoutes.js";
 import intershipRoutes from "./src/routes/internshipRoutes.js";
+import applicationRoutes from "./src/routes/applicationRoutes.js";
+
+import cloudinaryConnection from "./src/cloudinaryConfig.js";
 
 const app = express();
 const PORT = process.env.PORT || 8000;
@@ -16,6 +19,7 @@ connection()
     });
   })
   .catch((error) => console.log(error));
+cloudinaryConnection();
 
 app.get("/", (req, res) => {
   res.send("server is live");
@@ -28,6 +32,7 @@ app.use("/api/v1/auth", authRoutes);
 
 // internship routes
 app.use("/api/v1/internship", intershipRoutes);
+app.use("/api/v1/application", applicationRoutes);
 
 // write everything above do not touch these error middelware
 app.use((req, res, next) => {
