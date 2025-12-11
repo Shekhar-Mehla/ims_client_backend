@@ -20,3 +20,7 @@ export const updatePasswordByEmail = async (email, newPassword) =>
 
 export const updateUserVerification = async (authId, verified) =>
   await authCollection.findByIdAndUpdate(authId, { verified }, { new: true });
+
+export const updateUser = async (filter, update) => {
+  return await authCollection.findByIdAndUpdate(filter, update, { new: true });
+};

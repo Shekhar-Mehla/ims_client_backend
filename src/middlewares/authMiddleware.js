@@ -28,10 +28,13 @@ export const userAuthMiddleware = async (req, res, next) => {
       const session = await getsessionByAccessToken(token);
       if (session?._id) {
         const user = await getUserById(session.authId);
-        console.log(user, "user from auth middleware");
+
         if (user?._id && user.verified == true) {
+          user.password = undefined;
+          user.verified = undefined;
+          user.providers = undefined;
           req.userInfo = user;
-          console.log(req.userInfo, "userinfo");
+
           return next();
         } else {
           return responseClient({

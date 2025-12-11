@@ -5,8 +5,8 @@ import {
   checkUserByEmail,
   createUser,
   updatePasswordByEmail,
-  updateRefreshToken,
   updateUserVerification,
+  updateUser,
 } from "../models/Auth/authModel.js";
 import { createProfile } from "../models/Profile/profileModel.js";
 import { bcryptPassword, comparePassword } from "../utility/bcrypt.js";
@@ -189,7 +189,6 @@ export const getProfileController = async (req, res, next) => {
     const { getUserById } = await import("../models/Auth/authModel.js");
 
     const profile = await getProfile(req.userInfo._id);
-    const auth = await getUserById(req.userInfo._id);
 
     if (!profile) {
       return responseClient({
@@ -200,25 +199,12 @@ export const getProfileController = async (req, res, next) => {
     }
 
     // Combine profile and auth data
-    const userProfile = {
-      _id: auth._id,
-      email: auth.email,
-      fName: profile.fName,
-      lName: profile.lName,
-      avatarUrl: profile.avatarUrl,
-      resumeUrl: profile.resumeUrl,
-      technologies: profile.technologies,
-      sectors: profile.sectors,
-      roles: profile.roles,
-      createdAt: auth.createdAt,
-      updatedAt: auth.updatedAt,
-    };
 
     return responseClient({
       res,
       statusCode: 200,
       message: "Profile retrieved successfully",
-      payload: userProfile,
+      payload: profile,
     });
   } catch (error) {
     console.error("Get profile error:", error);
@@ -232,13 +218,7 @@ export const getProfileController = async (req, res, next) => {
 
 export const changePasswordController = async (req, res, next) => {
   try {
-    console.log("Change password request received");
     const { currentPassword, newPassword } = req.body;
-    console.log("Request body:", {
-      currentPassword: !!currentPassword,
-      newPassword: !!newPassword,
-    });
-    console.log("User info:", req.userInfo);
 
     const { email } = req.userInfo;
 
@@ -260,7 +240,6 @@ export const changePasswordController = async (req, res, next) => {
       });
     }
 
-    console.log("Getting user by email:", email);
     // Get user by email
     const auth = await checkUserByEmail(email);
     if (!auth) {
@@ -272,7 +251,6 @@ export const changePasswordController = async (req, res, next) => {
       });
     }
 
-    console.log("Verifying current password");
     // Verify current password
     const isCurrentPasswordValid = await comparePassword(
       currentPassword,
@@ -287,12 +265,8 @@ export const changePasswordController = async (req, res, next) => {
       });
     }
 
-    console.log("Hashing new password");
-    // Hash new password
     const hashedNewPassword = await bcryptPassword(newPassword);
 
-    console.log("Updating password in database");
-    // Update password
     await updatePasswordByEmail(email, hashedNewPassword);
 
     console.log("Password changed successfully");
@@ -353,14 +327,33 @@ export const loginController = async (req, res, next) => {
 //logout Controller
 export const logoutController = async (req, res, next) => {
   try {
-    const { email } = req.userInfo;
-    await updateRefreshToken(email, null);
-    await deleteManySessionByAuthId(req.userInfo._id);
+    // await updateRefreshToken(email, null);
+    // await deleteManySessionByAuthId(req.userInfo._id);
+    const { authId } = req.body;
 
+    if (!authId) {
+      return responseClient({
+        res,
+        statusCode: 401,
+        message: "Unauthorized: No token or authid provided",
+      });
+    }
+
+    await deleteManySessionByAuthId(authId);
+    const filter = { _id: authId };
+    const update = { refreshToken: null };
+    const user = await updateUser(filter, update);
+    if (!user._id) {
+      return responseClient({
+        res,
+        statusCode: 400,
+        message: "Logout error",
+      });
+    }
     return responseClient({
       res,
       statusCode: 200,
-      message: "Logout successful",
+      message: "Logout suucessfull",
     });
   } catch (error) {
     next(error);

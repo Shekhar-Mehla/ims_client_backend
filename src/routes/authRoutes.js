@@ -25,7 +25,7 @@ const authRoutes = express.Router();
 authRoutes.post("/register", registerDataValidator, registerController);
 authRoutes.get("/verify-email", verifyEmailController);
 authRoutes.post("/login", loginDataValidator, loginController);
-authRoutes.post("/logout", userAuthMiddleware, logoutController);
+authRoutes.post("/logout", logoutController);
 authRoutes.post(
   "/change-password",
   userAuthMiddleware,

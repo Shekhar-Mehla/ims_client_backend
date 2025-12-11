@@ -9,7 +9,7 @@ export const generateAccessToken = async (authId, req) => {
     { authId: authId.toString() },
     process.env.ACCESS_SECRETKEY,
     {
-      expiresIn: "15m",
+      expiresIn: "1m",
     }
   );
   console.log("Generated access token");

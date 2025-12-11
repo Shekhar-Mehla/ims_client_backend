@@ -38,10 +38,9 @@ export const applyController = async (req, res, next) => {
       await Promise.all(uploadPromises);
     }
 
-    // Prepare application data
     const applicationData = {
       internshipId: req.body.internshipId,
-      userId: req.body.userId,
+      userId: req.userInfo,
       profileId: req.body.profileId,
       preferences: {
         startDate: new Date(req.body.startDate),
@@ -52,12 +51,19 @@ export const applyController = async (req, res, next) => {
         coverLetter: req.body.coverLetter,
       },
       documents,
-      agreeTerms: req.body.agreeTerms === "true",
+      agreeTerms: req.body.agreeTerms,
       source: req.body.source || "direct",
     };
 
-    // Save application to database
+    // // Save application to database
     const application = await applyApplicationModel(applicationData);
+    if (!application?._id) {
+      return responseClient({
+        res,
+        message: "something went wrong while submitting the application",
+        statusCode: 500,
+      });
+    }
 
     return responseClient({
       res,
