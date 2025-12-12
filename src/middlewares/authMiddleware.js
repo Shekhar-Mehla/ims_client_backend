@@ -62,12 +62,15 @@ export const renewAccessTokenMiddleware = async (req, res, next) => {
     });
   }
   const token = authorization.split(" ")[1];
+
   try {
     const decodedtoken = verfiyRefreshToken(token);
-    if (decodedtoken?.authId) {
-      const auth = await checkUserByEmail(decodedtoken.email);
-      if (auth?._id && user.verified == true) {
-        const accessToken = await generateAccessToken(auth._id, req);
+
+    if (decodedtoken?.email) {
+      const user = await checkUserByEmail(decodedtoken.email);
+
+      if (user?._id && user?.verified == true) {
+        const accessToken = await generateAccessToken(user?._id,user?.email, req);
         return responseClient({
           res,
           statusCode: 200,

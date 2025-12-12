@@ -42,6 +42,6 @@ authRoutes.post(
   forgetPasswordDataValidator,
   forgetPasswordController
 );
-authRoutes.post("/renwew-access-token", renewAccessTokenMiddleware);
+authRoutes.post("/renew-access-token", renewAccessTokenMiddleware);
 authRoutes.get("/profile", userAuthMiddleware, getProfileController);
 export default authRoutes;

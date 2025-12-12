@@ -207,12 +207,7 @@ export const getProfileController = async (req, res, next) => {
       payload: profile,
     });
   } catch (error) {
-    console.error("Get profile error:", error);
-    return responseClient({
-      res,
-      statusCode: 500,
-      message: "Internal server error",
-    });
+    next(error);
   }
 };
 
