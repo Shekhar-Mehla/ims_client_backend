@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
- const NotificationSchema = new  mongoose.Schema(
+const NotificationSchema = new mongoose.Schema(
   {
     profileId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -21,5 +21,8 @@ import mongoose from "mongoose";
   },
   { timestamps: true }
 );
-notificationCollection =new  mongoose.model("Notification", NotificationSchema);
+const notificationCollection = mongoose.model(
+  "Notification",
+  NotificationSchema
+);
 export default notificationCollection;

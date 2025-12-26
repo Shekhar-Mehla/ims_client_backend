@@ -15,6 +15,7 @@ import {
   logoutController,
   registerController,
   verifyEmailController,
+  updateProfileController,
 } from "../controllers/authController.js";
 import {
   renewAccessTokenMiddleware,
@@ -44,4 +45,5 @@ authRoutes.post(
 );
 authRoutes.post("/renew-access-token", renewAccessTokenMiddleware);
 authRoutes.get("/profile", userAuthMiddleware, getProfileController);
+authRoutes.patch("/profile", userAuthMiddleware, updateProfileController);
 export default authRoutes;

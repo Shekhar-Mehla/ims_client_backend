@@ -3,8 +3,9 @@ import profileCollection from "./profileSchema.js";
 export const createProfile = async (data) =>
   await profileCollection(data).save();
 
+// Get profile and include related auth document (for email, etc.)
 export const getProfile = async (authId) =>
-  await profileCollection.findOne({ authId });
+  await profileCollection.findOne({ authId }).populate("authId", "email");
 
 export const updateProfile = async (authId, updateData) =>
   await profileCollection.findOneAndUpdate({ authId }, updateData, {

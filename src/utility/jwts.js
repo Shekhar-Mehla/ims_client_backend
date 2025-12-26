@@ -4,14 +4,10 @@ import { createSession } from "../models/Session/sessionModel.js";
 
 // Check if JWT secrets are configured
 
-export const generateAccessToken = async (authId,email, req) => {
-  const accessToken = await jwt.sign(
-    { authId: email.toString() },
-    process.env.ACCESS_SECRETKEY,
-    {
-      expiresIn: "1m",
-    }
-  );
+export const generateAccessToken = async (authId, email, req) => {
+  const accessToken = await jwt.sign({ email }, process.env.ACCESS_SECRETKEY, {
+    expiresIn: "15m",
+  });
   console.log("Generated access token");
   const obj = {
     authId,
@@ -63,7 +59,7 @@ export const generateEmailVerificationToken = async (authId, email) => {
 
 export const generatejwts = async (authId, email, req) => {
   const obj = {
-    accessToken: await generateAccessToken(authId,email, req),
+    accessToken: await generateAccessToken(authId, email, req),
     refreshToken: await generateRefreshToken(email),
   };
 

@@ -8,7 +8,10 @@ import {
   updateUserVerification,
   updateUser,
 } from "../models/Auth/authModel.js";
-import { createProfile } from "../models/Profile/profileModel.js";
+import {
+  createProfile,
+  updateProfile,
+} from "../models/Profile/profileModel.js";
 import { bcryptPassword, comparePassword } from "../utility/bcrypt.js";
 
 const hashPassword = bcryptPassword; // Alias for consistency
@@ -186,9 +189,9 @@ export const verifyEmailController = async (req, res) => {
 export const getProfileController = async (req, res, next) => {
   try {
     const { getProfile } = await import("../models/Profile/profileModel.js");
-    const { getUserById } = await import("../models/Auth/authModel.js");
 
     const profile = await getProfile(req.userInfo._id);
+    console.log(profile, "..............");
 
     if (!profile) {
       return responseClient({
@@ -198,13 +201,103 @@ export const getProfileController = async (req, res, next) => {
       });
     }
 
-    // Combine profile and auth data
+    // Combine profile and auth data (ensure email is present in payload)
+    const profileObj = profile.toObject();
+
+    // If authId is populated, extract email and flatten authId
+    const authData = profileObj.authId || {};
+    const email = authData.email || req.userInfo.email;
+
+    const payload = {
+      ...profileObj,
+      email,
+      // Keep authId as simple id for frontend
+      authId: authData._id || profileObj.authId,
+    };
 
     return responseClient({
       res,
       statusCode: 200,
       message: "Profile retrieved successfully",
-      payload: profile,
+      payload,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Update profile controller - merges partial updates and returns updated profile
+export const updateProfileController = async (req, res, next) => {
+  try {
+    const allowedFields = [
+      "fName",
+      "lName",
+      "countryCode",
+      "mobile",
+      "gender",
+      "dateOfBirth",
+      "address",
+      "city",
+      "state",
+      "pincode",
+      "educationLevel",
+      "institutionName",
+      "degree",
+      "fieldOfStudy",
+      "graduationYear",
+      "cgpa",
+      "skills",
+      "linkedinUrl",
+      "portfolioUrl",
+      "githubUrl",
+      "resumeUrl",
+    ];
+
+    const updateData = {};
+    allowedFields.forEach((field) => {
+      if (
+        Object.prototype.hasOwnProperty.call(req.body, field) &&
+        req.body[field] !== undefined &&
+        req.body[field] !== null &&
+        req.body[field] !== ""
+      ) {
+        updateData[field] = req.body[field];
+      }
+    });
+
+    if (Object.keys(updateData).length === 0) {
+      return responseClient({
+        res,
+        statusCode: 400,
+        message: "No valid profile fields provided for update",
+      });
+    }
+
+    const profile = await updateProfile(req.userInfo._id, updateData);
+
+    if (!profile) {
+      return responseClient({
+        res,
+        statusCode: 404,
+        message: "Profile not found",
+      });
+    }
+
+    const profileObj = profile.toObject();
+    const authData = profileObj.authId || {};
+    const email = authData.email || req.userInfo.email;
+
+    const payload = {
+      ...profileObj,
+      email,
+      authId: authData._id || profileObj.authId,
+    };
+
+    return responseClient({
+      res,
+      statusCode: 200,
+      message: "Profile updated successfully",
+      payload,
     });
   } catch (error) {
     next(error);

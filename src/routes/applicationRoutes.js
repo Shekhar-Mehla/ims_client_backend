@@ -4,12 +4,11 @@ import {
   applyController,
   getAllApplicationsController,
   updateApplicationStatusController,
+  getApplicationsByUserController,
 } from "../controllers/applicationController.js";
 import upload from "../middlewares/multer/multerConfig.js";
 
 const applicationRoutes = express.Router();
-
-export default applicationRoutes;
 
 //apply an application
 applicationRoutes.post(
@@ -21,7 +20,13 @@ applicationRoutes.post(
   ]),
   applyController
 );
-// applicationRoutes.post("/apply", userAuthMiddleware, applyController);
+
+// get applications by user
+applicationRoutes.get(
+  "/user/:userId",
+  userAuthMiddleware,
+  getApplicationsByUserController
+);
 
 // get all applications
 applicationRoutes.get(
@@ -29,9 +34,19 @@ applicationRoutes.get(
   userAuthMiddleware,
   getAllApplicationsController
 );
-// update application status
+
+// update application status (frontend expects PUT /update-status/:id)
+applicationRoutes.put(
+  "/update-status/:id",
+  userAuthMiddleware,
+  updateApplicationStatusController
+);
+
+// update application status (legacy path retained)
 applicationRoutes.patch(
   "/update-application-status/:id",
   userAuthMiddleware,
   updateApplicationStatusController
 );
+
+export default applicationRoutes;

@@ -24,7 +24,7 @@ export const userAuthMiddleware = async (req, res, next) => {
 
   try {
     const decodedtoken = verfiyAccessToken(token);
-    if (decodedtoken?.authId) {
+    if (decodedtoken?.email) {
       const session = await getsessionByAccessToken(token);
       if (session?._id) {
         const user = await getUserById(session.authId);
@@ -70,7 +70,11 @@ export const renewAccessTokenMiddleware = async (req, res, next) => {
       const user = await checkUserByEmail(decodedtoken.email);
 
       if (user?._id && user?.verified == true) {
-        const accessToken = await generateAccessToken(user?._id,user?.email, req);
+        const accessToken = await generateAccessToken(
+          user?._id,
+          user?.email,
+          req
+        );
         return responseClient({
           res,
           statusCode: 200,
