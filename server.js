@@ -7,9 +7,10 @@ import intershipRoutes from "./src/routes/internshipRoutes.js";
 import applicationRoutes from "./src/routes/applicationRoutes.js";
 
 import cloudinaryConnection from "./src/cloudinaryConfig.js";
+import notificationRoutes from "./src/routes/notificationRoutes.js";
 
 const app = express();
-const PORT = process.env.PORT || 8000;
+const PORT = process.env.PORT || 8001;
 connection()
   .then(() => {
     app.listen(PORT, (error) => {
@@ -29,11 +30,12 @@ app.use(express.json());
 
 // auth routes
 app.use("/api/v1/auth", authRoutes);
-
 // internship routes
 app.use("/api/v1/internship", intershipRoutes);
+// application routes
 app.use("/api/v1/application", applicationRoutes);
-
+// notification routes
+app.use("/api/v1/notification", notificationRoutes);
 // write everything above do not touch these error middelware
 app.use((req, res, next) => {
   const error = new Error(`not found ${req.originalUrl}`);
