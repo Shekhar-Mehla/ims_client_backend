@@ -18,6 +18,10 @@ const NotificationSchema = new mongoose.Schema(
     sentAt: { type: Date, default: null },
     status: { type: String, enum: ["sent", "failed"], default: "sent" },
     readAt: { type: Date, default: null },
+    isRead: {
+      type: String,
+      default: false,
+    },
   },
   { timestamps: true }
 );

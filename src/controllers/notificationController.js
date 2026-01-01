@@ -91,7 +91,7 @@ export const getnotificationControllerbyId = async (req, res, next) => {
 
 export const updatenotificationControllerbyId = async (req, res, next) => {
   const { notificationid } = req.params;
-  console.log(notificationid);
+  
   if (!notificationid) {
     return responseClient({
       res,

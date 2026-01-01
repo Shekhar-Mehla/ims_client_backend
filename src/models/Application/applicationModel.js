@@ -7,8 +7,9 @@ export const applyApplicationModel = (applicationData) => {
 
 // get applications by user (populate only necessary fields for performance)
 export const getApplicationsByUserModel = (userId) => {
-  console.log(userId, "model.....");
-  return applicationCollection.find({ userId }).populate("internshipId");
+  return applicationCollection
+    .find({ userId })
+    .populate({ path: "internshipId", select: "title company " });
 };
 // get all applications model (populate key fields)
 export const getAllApplicationsModel = () =>

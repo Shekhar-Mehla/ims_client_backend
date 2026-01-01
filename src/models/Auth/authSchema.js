@@ -7,9 +7,11 @@ const AuthSchema = new mongoose.Schema(
     providers: [{ provider: String, providerId: String }],
     verified: { type: Boolean, default: false },
     refreshToken: { type: String },
+    usertype: { type: [String], default: ["user"] },
   },
   { timestamps: true }
 );
 
 const authCollection = mongoose.model("Auth", AuthSchema);
 export default authCollection;
+

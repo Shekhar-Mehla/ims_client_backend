@@ -17,7 +17,7 @@ import applicationCollection from "../models/Application/applicationSchema.js";
 export const applyController = async (req, res, next) => {
   try {
     const documents = {};
-    console.log(req.body, ".......body");
+    
 
     // Basic validations
     const internshipId = req.body.internshipId || null;
@@ -204,7 +204,7 @@ export const updateApplicationStatusController = async (req, res, next) => {
     const { status } = req.body;
 
     const { id } = req.params;
-
+   
     const updatedApplication = await updateApplicationStatusModel(id, status);
 
     if (!updatedApplication) {

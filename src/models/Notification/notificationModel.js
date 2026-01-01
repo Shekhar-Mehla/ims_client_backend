@@ -13,10 +13,8 @@ export const getNotificationsByProfile = (authId) =>
 
 export const updateNotificationByProfile = (_id) => {
   return notificationCollection.findOneAndUpdate(
-    { _id: new mongoose.Types.ObjectId(_id) }, // ⚡ convert string to ObjectId
-    { isRead: true, readAt: new Date() },
-    { new: true } // return updated doc
+    { _id: new mongoose.Types.ObjectId(_id) }, // filter
+    { $set: { isRead: true } }, // update
+    { new: true } // options
   );
 };
-
-export default notificationCollection;
