@@ -412,6 +412,64 @@ export const loginController = async (req, res, next) => {
     next(error);
   }
 };
+
+// Google login controller
+export const googleLoginController = async (req, res, next) => {
+  try {
+    const { email, fName, lName, uid } = req.body;
+    
+    if (!email) {
+      return responseClient({
+        res,
+        statusCode: 400,
+        message: "Email is required",
+      });
+    }
+
+    let auth = await checkUserByEmail(email);
+
+    if (!auth) {
+      // Create new user if they don't exist
+      // Since it's Google login, we can skip the manual verification step
+      auth = await createUser({
+        email,
+        password: await bcryptPassword(uid), // Use Firebase UID as a dummy password
+        verified: true,
+      });
+
+      if (!auth?._id) {
+        return responseClient({
+          res,
+          statusCode: 400,
+          message: "Error creating user via Google",
+        });
+      }
+
+      // Create profile for the new user
+      await createProfile({
+        authId: auth._id,
+        fName: fName || "User",
+        lName: lName || "",
+        technologies: [],
+        sectors: [],
+        roles: [],
+      });
+    }
+
+    // Generate JWTs
+    const jwts = await generatejwts(auth._id, email, req);
+
+    return responseClient({
+      res,
+      statusCode: 200,
+      message: "Google login successful",
+      payload: jwts,
+    });
+  } catch (error) {
+    console.error("Google login error:", error);
+    next(error);
+  }
+};
 //logout Controller
 export const logoutController = async (req, res, next) => {
   try {

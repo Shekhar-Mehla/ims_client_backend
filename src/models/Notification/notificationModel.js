@@ -8,7 +8,7 @@ export const createNotification = (notificationData) => {
 // get notifications for a profile
 export const getNotificationsByProfile = (authId) =>
   notificationCollection
-    .find({ authId: new mongoose.Types.ObjectId(authId), isRead: false })
+    .find({ authId: new mongoose.Types.ObjectId(authId) })
     .sort({ createdAt: -1 });
 
 export const updateNotificationByProfile = (_id) => {

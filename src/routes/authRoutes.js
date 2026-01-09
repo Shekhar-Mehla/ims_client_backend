@@ -16,6 +16,7 @@ import {
   registerController,
   verifyEmailController,
   updateProfileController,
+  googleLoginController,
 } from "../controllers/authController.js";
 import {
   renewAccessTokenMiddleware,
@@ -26,6 +27,7 @@ const authRoutes = express.Router();
 authRoutes.post("/register", registerDataValidator, registerController);
 authRoutes.get("/verify-email", verifyEmailController);
 authRoutes.post("/login", loginDataValidator, loginController);
+authRoutes.post("/google-login", googleLoginController);
 authRoutes.post("/logout", logoutController);
 authRoutes.post(
   "/change-password",
