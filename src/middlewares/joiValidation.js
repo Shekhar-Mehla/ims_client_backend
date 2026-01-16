@@ -3,7 +3,6 @@ import responseClient from "../utility/responseClient.js";
 
 const dataValidator = (req, res, next, schemaObject) => {
   try {
-    console.log(req.params, "pra");
     if (req.params && Object.keys(req.params).length > 0) {
       const { error, value } = schemaObject.validate(req.params, {
         abortEarly: false,
@@ -62,7 +61,6 @@ const dataValidator = (req, res, next, schemaObject) => {
 
     next();
   } catch (error) {
-    console.error("Validation middleware error:", error);
     next(error);
   }
 };

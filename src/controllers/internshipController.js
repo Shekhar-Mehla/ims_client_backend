@@ -8,11 +8,8 @@ import slugify from "slugify";
 
 // get intership list  controller
 export const getIntershipController = async (req, res, next) => {
-  console.log("getIntershipController");
-
   try {
     const internshipList = await getAllIntership();
-    console.log(internshipList);
     if (!Array.isArray(internshipList)) {
       return responseClient({
         res,

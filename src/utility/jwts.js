@@ -8,7 +8,6 @@ export const generateAccessToken = async (authId, email, req) => {
   const accessToken = await jwt.sign({ email }, process.env.ACCESS_SECRETKEY, {
     expiresIn: "15m",
   });
-  console.log("Generated access token");
   const obj = {
     authId,
     accessToken,
@@ -16,7 +15,6 @@ export const generateAccessToken = async (authId, email, req) => {
     ip: req.ip || null,
     expiresAt: new Date(Date.now() + 15 * 60 * 1000), // 15 minutes from now
   };
-  console.log("Session object created");
   await createSession(obj);
   return accessToken;
 };
@@ -53,7 +51,6 @@ export const generateEmailVerificationToken = async (authId, email) => {
       expiresIn: "24h", // 24 hours for email verification
     }
   );
-  console.log("Generated email verification token");
   return verificationToken;
 };
 

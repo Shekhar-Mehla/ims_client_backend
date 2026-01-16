@@ -1,7 +1,6 @@
 import applicationCollection from "./applicationSchema.js";
 // apply application model
 export const applyApplicationModel = (applicationData) => {
-  console.log(applicationData);
   return applicationCollection(applicationData).save();
 };
 

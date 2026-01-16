@@ -11,15 +11,13 @@ import notificationRoutes from "./src/routes/notificationRoutes.js";
 
 const app = express();
 const PORT = process.env.PORT || 8001;
-connection()
+  connection()
   .then(() => {
     app.listen(PORT, (error) => {
-      return !error
-        ? console.log(`service is running at http://localhost:${PORT}`)
-        : console.log(error);
+      if (error) return;
     });
   })
-  .catch((error) => console.log(error));
+  .catch((error) => {});
 cloudinaryConnection();
 
 app.get("/", (req, res) => {

@@ -18,7 +18,6 @@ const registerDataValidator = (req, res, next) => {
 
 export default registerDataValidator;
 export const loginDataValidator = (req, res, next) => {
-  console.log(req.body, "21");
   const schemaObject = Joi.object({
     email: EMAIL.required(),
     password: STRING.min(8).required(),

@@ -31,7 +31,6 @@ export const registerController = async (req, res) => {
   try {
     const { fName, lName, email, password, technologies, sectors, roles } =
       req.body;
-    console.log(req.body, "29");
     const existing = await checkUserByEmail(email);
     if (existing) {
       return responseClient({
@@ -43,7 +42,6 @@ export const registerController = async (req, res) => {
     }
     // hashed the password
     const hashedPassword = await bcryptPassword(req.body.password);
-    console.log(hashedPassword, "31");
 
     const auth = await createUser({
       email,
@@ -85,7 +83,6 @@ export const registerController = async (req, res) => {
 
     // send email with verification link
     const template = emailVerificationTemplate(verificationUrl);
-    console.log("Verification URL:", verificationUrl);
 
     const mail = await sendEmail({
       to: auth.email,
@@ -95,7 +92,6 @@ export const registerController = async (req, res) => {
 
     // send email with verification link
     const verificationTemplate = emailVerificationTemplate(verificationUrl);
-    console.log("Verification URL:", verificationUrl);
 
     try {
       const mailSent = await sendEmail({
@@ -103,12 +99,7 @@ export const registerController = async (req, res) => {
         subject: "Verify your email address",
         template: verificationTemplate,
       });
-
-      if (!mailSent) {
-        console.error("Failed to send verification email");
-      }
     } catch (emailError) {
-      console.error("Email sending error:", emailError);
     }
 
     return responseClient({
@@ -121,7 +112,6 @@ export const registerController = async (req, res) => {
       },
     });
   } catch (err) {
-    console.error("Registration error:", err);
     return responseClient({
       res,
       statusCode: 500,
@@ -176,7 +166,6 @@ export const verifyEmailController = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Email verification error:", error);
     return responseClient({
       res,
       statusCode: 400,
@@ -191,7 +180,6 @@ export const getProfileController = async (req, res, next) => {
     const { getProfile } = await import("../models/Profile/profileModel.js");
 
     const profile = await getProfile(req.userInfo._id);
-    console.log(profile, "..............");
 
     if (!profile) {
       return responseClient({
@@ -311,7 +299,6 @@ export const changePasswordController = async (req, res, next) => {
     const { email } = req.userInfo;
 
     if (!currentPassword || !newPassword) {
-      console.log("Missing required fields");
       return responseClient({
         res,
         statusCode: 400,
@@ -320,7 +307,6 @@ export const changePasswordController = async (req, res, next) => {
     }
 
     if (newPassword.length < 8) {
-      console.log("New password too short");
       return responseClient({
         res,
         statusCode: 400,
@@ -331,7 +317,6 @@ export const changePasswordController = async (req, res, next) => {
     // Get user by email
     const auth = await checkUserByEmail(email);
     if (!auth) {
-      console.log("User not found");
       return responseClient({
         res,
         statusCode: 404,
@@ -345,7 +330,6 @@ export const changePasswordController = async (req, res, next) => {
       auth.password
     );
     if (!isCurrentPasswordValid) {
-      console.log("Current password incorrect");
       return responseClient({
         res,
         statusCode: 400,
@@ -357,15 +341,12 @@ export const changePasswordController = async (req, res, next) => {
 
     await updatePasswordByEmail(email, hashedNewPassword);
 
-    console.log("Password changed successfully");
     return responseClient({
       res,
       statusCode: 200,
       message: "Password changed successfully",
     });
   } catch (error) {
-    console.error("Change password error:", error);
-    console.error("Error stack:", error.stack);
     return responseClient({
       res,
       statusCode: 500,
@@ -466,7 +447,6 @@ export const googleLoginController = async (req, res, next) => {
       payload: jwts,
     });
   } catch (error) {
-    console.error("Google login error:", error);
     next(error);
   }
 };
