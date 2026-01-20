@@ -1,4 +1,5 @@
 import applicationCollection from "./applicationSchema.js";
+import internshipCollection from "../Intership/internshipSchema.js";
 // apply application model
 export const applyApplicationModel = (applicationData) => {
   return applicationCollection(applicationData).save();
@@ -8,7 +9,19 @@ export const applyApplicationModel = (applicationData) => {
 export const getApplicationsByUserModel = (userId) => {
   return applicationCollection
     .find({ userId })
-    .populate({ path: "internshipId", select: "title company " });
+    .populate({
+      path: "internshipId",
+      select: "title company location stipend slug",
+      model: "Internship"
+    });
+};
+
+// get single application by ID with full population
+export const getApplicationByIdModel = (id) => {
+  return applicationCollection
+    .findById(id)
+    .populate("internshipId")
+    .populate("profileId");
 };
 // get all applications model (populate key fields)
 export const getAllApplicationsModel = () =>

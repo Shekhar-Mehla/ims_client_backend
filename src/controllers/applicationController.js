@@ -4,6 +4,7 @@ import {
   getAllApplicationsModel,
   updateApplicationStatusModel,
   getApplicationsByUserModel,
+  getApplicationByIdModel,
 } from "../models/Application/applicationModel.js";
 import { updateProfile } from "../models/Profile/profileModel.js";
 import { createNotification } from "../models/Notification/notificationModel.js";
@@ -166,12 +167,55 @@ export const getApplicationsByUserController = async (req, res, next) => {
 
     const applications = await getApplicationsByUserModel(authUserId);
 
-    // Ensure internshipId is populated (has title) for each application; if not, fetch the full internship document
-
     return responseClient({
       res,
       message: "Applications fetched successfully",
       payload: applications,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// get single application details controller
+export const getApplicationDetailsController = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    if (!req.userInfo) {
+      return responseClient({
+        res,
+        statusCode: 401,
+        message: "Unauthorized",
+      });
+    }
+
+    const application = await getApplicationByIdModel(id);
+
+    if (!application) {
+      return responseClient({
+        res,
+        statusCode: 404,
+        message: "Application not found",
+      });
+    }
+
+    // Security check: ensure the application belongs to the user OR user is admin
+    if (
+      application.userId.toString() !== req.userInfo._id.toString() &&
+      req.userInfo.role !== "admin"
+    ) {
+      return responseClient({
+        res,
+        statusCode: 403,
+        message: "You are not authorized to view this application",
+      });
+    }
+
+    return responseClient({
+      res,
+      message: "Application details retrieved successfully",
+      payload: application,
     });
   } catch (error) {
     next(error);

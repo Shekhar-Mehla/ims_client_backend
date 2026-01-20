@@ -15,9 +15,12 @@ import {
 import { bcryptPassword, comparePassword } from "../utility/bcrypt.js";
 
 const hashPassword = bcryptPassword; // Alias for consistency
-// import generateOTP from "../utility/genrateOtp.js";
-// import { createOtpModel } from "../models/Otp/otpModel.js";
-// import { otpEmailTemplate } from "../services/email/templates/emailOtp.js";
+import generateOTP from "../utility/genrateOtp.js";
+import {
+  createOtpModel,
+  getLatestOtpByAuthId,
+} from "../models/Otp/otpModel.js";
+import { otpEmailTemplate } from "../services/email/templates/emailOtp.js";
 import { emailVerificationTemplate } from "../services/email/templates/emailVerification.js";
 import { sendEmail } from "../services/email/sendEmail.js";
 import {
@@ -504,7 +507,7 @@ export const generateNewOtpController = async (req, res, next) => {
     const otpObject = {
       authId: existing._id,
       code: otpCode,
-      purpose: "email_verification",
+      purpose: "reset_password",
       expiresAt: new Date(Date.now() + 10 * 60 * 1000),
     };
     const otp = await createOtpModel(otpObject);
@@ -547,15 +550,49 @@ export const forgetPasswordController = async (req, res, next) => {
         payload: null,
       });
     }
+
+    // Verify OTP
+    const latestOtp = await getLatestOtpByAuthId(existing._id, "reset_password");
+
+    if (!latestOtp) {
+      return responseClient({
+        res,
+        statusCode: 400,
+        message: "No OTP found for this request. Please request a new one.",
+      });
+    }
+
+    if (latestOtp.code !== otp) {
+      return responseClient({
+        res,
+        statusCode: 400,
+        message: "Invalid OTP code",
+      });
+    }
+
+    if (new Date() > latestOtp.expiresAt) {
+      return responseClient({
+        res,
+        statusCode: 400,
+        message: "OTP has expired. Please request a new one.",
+      });
+    }
+
     // hash the new password
     const hashedPassword = await bcryptPassword(newPassword);
     // update the password
     await updatePasswordByEmail(email, hashedPassword);
+
+    // Mark OTP as used (optional, but good practice)
+    // latestOtp.usedAt = new Date();
+    // await latestOtp.save();
+
     sendEmail({
       to: existing.email,
       subject: "Password Changed",
-      template: `<p>Your password has been changed successfully. For the further technical assistant please contact Admin.</p>`,
+      template: `<p>Your password has been changed successfully. For further technical assistance please contact Admin.</p>`,
     });
+
     // send email notification about password change
     return responseClient({
       res,

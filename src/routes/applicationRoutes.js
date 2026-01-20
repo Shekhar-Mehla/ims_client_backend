@@ -5,6 +5,7 @@ import {
   getAllApplicationsController,
   updateApplicationStatusController,
   getApplicationsByUserController,
+  getApplicationDetailsController,
 } from "../controllers/applicationController.js";
 import upload from "../middlewares/multer/multerConfig.js";
 
@@ -26,6 +27,13 @@ applicationRoutes.get(
   "/user/:userId",
   userAuthMiddleware,
   getApplicationsByUserController
+);
+
+// get single application details
+applicationRoutes.get(
+  "/details/:id",
+  userAuthMiddleware,
+  getApplicationDetailsController
 );
 
 // get all applications
