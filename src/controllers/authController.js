@@ -77,7 +77,7 @@ export const registerController = async (req, res) => {
     // create email verification token
     const verificationToken = await generateEmailVerificationToken(
       auth._id,
-      email
+      email,
     );
 
     // create verification URL (points to frontend page)
@@ -102,8 +102,7 @@ export const registerController = async (req, res) => {
         subject: "Verify your email address",
         template: verificationTemplate,
       });
-    } catch (emailError) {
-    }
+    } catch (emailError) {}
 
     return responseClient({
       res,
@@ -330,7 +329,7 @@ export const changePasswordController = async (req, res, next) => {
     // Verify current password
     const isCurrentPasswordValid = await comparePassword(
       currentPassword,
-      auth.password
+      auth.password,
     );
     if (!isCurrentPasswordValid) {
       return responseClient({
@@ -401,7 +400,7 @@ export const loginController = async (req, res, next) => {
 export const googleLoginController = async (req, res, next) => {
   try {
     const { email, fName, lName, uid } = req.body;
-    
+
     if (!email) {
       return responseClient({
         res,
@@ -414,12 +413,13 @@ export const googleLoginController = async (req, res, next) => {
 
     if (!auth) {
       // Create new user if they don't exist
-      // Since it's Google login, we can skip the manual verification step
+
       auth = await createUser({
         email,
         password: await bcryptPassword(uid), // Use Firebase UID as a dummy password
         verified: true,
       });
+ 
 
       if (!auth?._id) {
         return responseClient({
@@ -431,7 +431,7 @@ export const googleLoginController = async (req, res, next) => {
 
       // Create profile for the new user
       await createProfile({
-        authId: auth._id,
+        authId: auth?._id,
         fName: fName || "User",
         lName: lName || "",
         technologies: [],
@@ -441,7 +441,7 @@ export const googleLoginController = async (req, res, next) => {
     }
 
     // Generate JWTs
-    const jwts = await generatejwts(auth._id, email, req);
+    const jwts = await generatejwts(auth?._id, email, req);
 
     return responseClient({
       res,
@@ -552,7 +552,10 @@ export const forgetPasswordController = async (req, res, next) => {
     }
 
     // Verify OTP
-    const latestOtp = await getLatestOtpByAuthId(existing._id, "reset_password");
+    const latestOtp = await getLatestOtpByAuthId(
+      existing._id,
+      "reset_password",
+    );
 
     if (!latestOtp) {
       return responseClient({

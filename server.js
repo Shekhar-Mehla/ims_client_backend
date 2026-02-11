@@ -11,10 +11,11 @@ import notificationRoutes from "./src/routes/notificationRoutes.js";
 
 const app = express();
 const PORT = process.env.PORT || 8001;
-  connection()
+connection()
   .then(() => {
     app.listen(PORT, (error) => {
-      if (error) return;
+      if (error) return console.log(error);
+      console.log("server is running");
     });
   })
   .catch((error) => {});
